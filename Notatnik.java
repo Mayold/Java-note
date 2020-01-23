@@ -11,6 +11,34 @@ public class Notatnik extends JFrame {
 	String plik;
 	Clipboard schowek = getToolkit().getSystemClipboard();
 	
+	private void itemOpenActionPerformed(ActionEvent e, JTextArea tekst) {
+		FileDialog oknodialogowe = new FileDialog(
+		Notatnik.this, "Wbierz plik", FileDialog.LOAD
+		);
+		oknodialogowe.setVisible(true);
+		
+		if(oknodialogowe.getFile() != null) {
+			plik = oknodialogowe.getDirectory() +
+			oknodialogowe.getFile();
+			setTitle(plik);
+		}
+		
+		try {
+			BufferedReader czytnik = new BufferedReader(new FileReader(plik));
+			StringBuilder sb = new StringBuilder();
+			String linia = null;
+			
+			while((linia = czytnik.readLine()) != null) {
+				sb.append(linia + "\n");
+				tekst.setText(sb.toString());
+			}
+			czytnik.close();
+		} catch(IOException ioe) {
+			System.out.println("Nie odnaleziono pliku");
+		}
+		
+	}
+	
 	public Notatnik() {
 		addWindowListener(
 			new WindowAdapter() {
@@ -46,7 +74,7 @@ public class Notatnik extends JFrame {
 		menuPlik.add(itemOpen);
 		itemOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				itemOpenActonPerformed(e, tekst);
+				itemOpenActionPerformed(e, tekst);
 			}
 		});
 
