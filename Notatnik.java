@@ -10,6 +10,7 @@ public class Notatnik extends JFrame {
 	
 	String plik;
 	Clipboard schowek = getToolkit().getSystemClipboard();
+
 	
 	private void itemOpenActionPerformed(ActionEvent e, JTextArea tekst) {
 		FileDialog oknodialogowe = new FileDialog(
@@ -38,6 +39,37 @@ public class Notatnik extends JFrame {
 		}
 		
 	}
+
+	private void itemSaveActionPerformed(ActionEvent e, JTextArea tekst) {
+		FileDialog oknodialogowe = new FileDialog(
+		Notatnik.this, "Zapisz plik", FileDialog.SAVE
+		);
+		oknodialogowe.setVisible(true);
+		
+		if(oknodialogowe.getFile() != null) {
+			plik = oknodialogowe.getDirectory() +
+			oknodialogowe.getFile();
+			setTitle(plik);
+		}
+		
+		try {
+			FileWriter zapis = new FileWriter(plik);
+			zapis.write(tekst.getText());
+			setTitle(plik);
+			zapis.close();
+			
+		} catch(IOException ioe) {
+			System.out.println("Nie odnaleziono pliku");
+		}
+	}
+	
+	private void itemCutActionPerformed(ActionEvent e, JTextArea tekst) {
+		String wytnijTekst = tekst.getSelectedText();
+		StringSelection wytnijZaznaczenie = new StringSelection(wytnijTekst);
+		schowek.setContents(wytnijZaznaczenie, wytnijZaznaczenie);
+		tekst.replaceRange("", tekst.getSelectionStart(), tekst.getSelectionEnd());
+		
+	}
 	
 	public Notatnik() {
 		addWindowListener(
@@ -55,11 +87,10 @@ public class Notatnik extends JFrame {
 		JMenuBar menu = new JMenuBar();
 		setJMenuBar(menu);
 		
+		// MENU PLIK
+
 		JMenu menuPlik = new JMenu("Plik");
 		menu.add(menuPlik);
-		
-		JMenu menuEdycja = new JMenu("Edycja");
-		menu.add(menuEdycja);
 
 		JMenuItem itemNew = new JMenuItem("Nowy");
 		menuPlik.add(itemNew);
@@ -78,12 +109,43 @@ public class Notatnik extends JFrame {
 			}
 		});
 
+		JMenuItem itemSave = new JMenuItem("Zapisz");
+		menuPlik.add(itemSave);
+		itemSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				itemSaveActionPerformed(e, tekst);
+			}
+		});
+
+		// MENU EDYCJA
+		
+		JMenu menuEdycja = new JMenu("Edycja");
+		menu.add(menuEdycja);
+
+		JMenuItem itemExit = new JMenuItem("Wyjdz");
+		menuEdycja.add(itemExit);
+		itemExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		
+		JMenuItem itemCut = new JMenuItem("Wytnij");
+		menuEdycja.add(itemCut);
+		itemCut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				itemCutActionPerformed(e, tekst);
+			}
+		});
+
 	
 		setTitle("Notatnik");
 		setSize(960, 600);
 		setVisible(true);
 		setResizable(false);
 	}
+	
+	
 	
 	public static void main(String[] args) {
 		new Notatnik();
